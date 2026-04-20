@@ -17,3 +17,19 @@ export interface ApiError {
   error: string;
   statusCode: number;
 }
+
+// Task feature — shared between frontend and backend
+export type TaskStatus = "todo" | "in-progress" | "done";
+
+export interface Task {
+  id: string;
+  title: string;
+  description: string;
+  status: TaskStatus;
+  createdAt: string;
+}
+
+export interface CreateTaskInput {
+  title: string;
+  description: string;
+}
