@@ -1,138 +1,107 @@
-import { useEffect, useState } from "react";
-import type { ApiResponse, Task, CreateTaskInput } from "@component-lab/types";
-import { apiUrl } from "@component-lab/utils";
+import { useState } from "react";
+import { Card, CardTitle, CardDescription, Button, Input, Textarea, Badge } from "@component-lab/ui";
+import "@component-lab/ui/src/ui.css";
+import type { CreateTaskInput } from "@component-lab/types";
+import { useTasks, useCreateTask } from "./hooks/useTasks";
 import "./App.css";
 
 export default function App() {
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [fetchError, setFetchError] = useState("");
+  const { data: tasks = [], isLoading, isError, error } = useTasks();
+  const createTask = useCreateTask();
 
-  // Form state
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState("");
-
-  async function loadTasks() {
-    setFetchError("");
-    try {
-      const res = await fetch(apiUrl("/tasks"));
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const json: ApiResponse<Task[]> = await res.json();
-      setTasks(json.data);
-    } catch (err) {
-      setFetchError(err instanceof Error ? err.message : "Failed to load tasks");
-    }
-  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!title.trim()) return;
-
-    setSubmitting(true);
-    setSubmitError("");
-
     const input: CreateTaskInput = { title, description };
-
-    try {
-      const res = await fetch(apiUrl("/tasks"), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(input),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const json: ApiResponse<Task> = await res.json();
-      setTasks((prev) => [json.data, ...prev]);
-      setTitle("");
-      setDescription("");
-    } catch (err) {
-      setSubmitError(err instanceof Error ? err.message : "Failed to create task");
-    } finally {
-      setSubmitting(false);
-    }
+    await createTask.mutateAsync(input);
+    setTitle("");
+    setDescription("");
   }
-
-  useEffect(() => {
-    loadTasks();
-  }, []);
 
   return (
     <div className="app">
       <header className="app-header">
         <div className="logo">⬡ Component Lab</div>
-        <span className="badge">Monorepo · Day 2</span>
+        <span className="badge-header">Monorepo · Day 3</span>
       </header>
 
       <main className="app-main">
-        {/* Create Task Form */}
-        <section className="card">
-          <h1 className="card-title">Create a Task</h1>
-          <p className="card-desc">
-            Submit data from the frontend, processed by <code>apps/api</code> using the
-            shared <code>CreateTaskInput</code> and <code>Task</code> types.
-          </p>
+        {/* Create Task — uses shared Card, Input, Textarea, Button */}
+        <Card>
+          <CardTitle>Create a Task</CardTitle>
+          <CardDescription>
+            Form built from <code>@component-lab/ui</code>. Data fetching via{" "}
+            <code>React Query</code>.
+          </CardDescription>
 
           <form className="task-form" onSubmit={handleSubmit}>
-            <div className="field">
-              <label className="field-label" htmlFor="title">
-                Title <span className="required">*</span>
-              </label>
-              <input
-                id="title"
-                className="field-input"
-                type="text"
-                placeholder="e.g. Set up CI pipeline"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                disabled={submitting}
-                required
-              />
-            </div>
+            <Input
+              label="Title"
+              placeholder="e.g. Set up CI pipeline"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              disabled={createTask.isPending}
+              required
+            />
+            <Textarea
+              label="Description"
+              placeholder="Optional details…"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              disabled={createTask.isPending}
+              rows={3}
+            />
 
-            <div className="field">
-              <label className="field-label" htmlFor="description">
-                Description
-              </label>
-              <textarea
-                id="description"
-                className="field-input field-textarea"
-                placeholder="Optional details…"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                disabled={submitting}
-                rows={3}
-              />
-            </div>
-
-            {submitError && (
-              <p className="inline-error">✗ {submitError}</p>
+            {createTask.isError && (
+              <p className="inline-error">
+                ✗ {(createTask.error as Error).message}
+              </p>
             )}
 
-            <button className="btn" type="submit" disabled={submitting || !title.trim()}>
-              {submitting ? "Adding…" : "Add Task"}
-            </button>
+            <Button
+              type="submit"
+              loading={createTask.isPending}
+              disabled={!title.trim()}
+            >
+              Add Task
+            </Button>
           </form>
-        </section>
+        </Card>
 
         {/* Task List */}
-        <section className="card">
+        <Card>
           <div className="list-header">
-            <h2 className="card-title">Tasks</h2>
-            <span className="count-badge">{tasks.length}</span>
+            <CardTitle size="md">Tasks</CardTitle>
+            <Badge variant="accent">{tasks.length}</Badge>
           </div>
 
-          {fetchError && <p className="inline-error">✗ {fetchError}</p>}
+          {isLoading && <p className="state-msg">Loading…</p>}
+          {isError && (
+            <p className="inline-error">✗ {(error as Error).message}</p>
+          )}
+          {!isLoading && tasks.length === 0 && (
+            <p className="state-msg muted">No tasks yet — add one above.</p>
+          )}
 
-          {tasks.length === 0 && !fetchError ? (
-            <p className="empty-state">No tasks yet — add one above.</p>
-          ) : (
+          {tasks.length > 0 && (
             <ul className="task-list">
               {tasks.map((task) => (
                 <li key={task.id} className="task-item">
                   <div className="task-meta">
-                    <span className={`task-status status-${task.status}`}>
+                    <Badge
+                      variant={
+                        task.status === "done"
+                          ? "success"
+                          : task.status === "in-progress"
+                          ? "accent"
+                          : "default"
+                      }
+                    >
                       {task.status}
-                    </span>
+                    </Badge>
                     <span className="task-date">
                       {new Date(task.createdAt).toLocaleTimeString()}
                     </span>
@@ -145,7 +114,7 @@ export default function App() {
               ))}
             </ul>
           )}
-        </section>
+        </Card>
       </main>
     </div>
   );

@@ -10,7 +10,9 @@
   },
   "dependencies": {
     "@component-lab/types": "*",
+    "@component-lab/ui": "*",
     "@component-lab/utils": "*",
+    "@tanstack/react-query": "^5.62.16",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

@@ -1,3 +1,5 @@
+/* App-level layout — component styles live in @component-lab/ui/src/ui.css */
+
 .app {
   min-height: 100vh;
   display: flex;
@@ -20,7 +22,7 @@
   letter-spacing: -0.02em;
 }
 
-.badge {
+.badge-header {
   font-size: 11px;
   font-weight: 600;
   padding: 3px 10px;
@@ -42,207 +44,10 @@
   margin: 0 auto;
 }
 
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 28px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.card-title {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--text);
-}
-
-.card-desc {
-  color: var(--text-muted);
-  font-size: 14px;
-  line-height: 1.7;
-}
-
-.card-desc code {
-  background: rgba(99, 102, 241, 0.1);
-  color: var(--accent);
-  padding: 1px 6px;
-  border-radius: 4px;
-  font-size: 13px;
-}
-
-.status-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 500;
-  width: fit-content;
-}
-
-.status-idle {
-  background: rgba(139, 143, 168, 0.1);
-  color: var(--text-muted);
-  border: 1px solid rgba(139, 143, 168, 0.2);
-}
-
-.status-loading {
-  background: rgba(99, 102, 241, 0.1);
-  color: var(--accent);
-  border: 1px solid rgba(99, 102, 241, 0.25);
-}
-
-.status-ok {
-  background: rgba(34, 197, 94, 0.1);
-  color: var(--success);
-  border: 1px solid rgba(34, 197, 94, 0.25);
-}
-
-.status-error {
-  background: rgba(239, 68, 68, 0.1);
-  color: var(--error);
-  border: 1px solid rgba(239, 68, 68, 0.25);
-}
-
-.spinner {
-  width: 12px;
-  height: 12px;
-  border: 2px solid rgba(99, 102, 241, 0.3);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin 0.7s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.health-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-}
-
-.health-item {
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 14px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.health-label {
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-muted);
-}
-
-.health-value {
-  font-size: 15px;
-  font-weight: 500;
-  color: var(--text);
-}
-
-.btn {
-  align-self: flex-start;
-  background: var(--accent);
-  color: #fff;
-  border: none;
-  padding: 10px 22px;
-  border-radius: var(--radius);
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.btn:hover:not(:disabled) {
-  background: var(--accent-hover);
-}
-
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.info-card .card-title {
-  font-size: 16px;
-}
-
-.tree {
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 16px;
-  font-family: 'JetBrains Mono', 'Fira Code', monospace;
-  font-size: 13px;
-  color: var(--text-muted);
-  line-height: 1.8;
-  white-space: pre;
-  overflow-x: auto;
-}
-
-/* Task form */
 .task-form {
   display: flex;
   flex-direction: column;
   gap: 14px;
-}
-
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.field-label {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-muted);
-  letter-spacing: 0.02em;
-}
-
-.required {
-  color: var(--error);
-  margin-left: 2px;
-}
-
-.field-input {
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 10px 14px;
-  font-size: 14px;
-  color: var(--text);
-  font-family: inherit;
-  transition: border-color 0.15s;
-  outline: none;
-  resize: none;
-}
-
-.field-input:focus {
-  border-color: var(--accent);
-}
-
-.field-input::placeholder {
-  color: var(--text-muted);
-  opacity: 0.6;
-}
-
-.field-input:disabled {
-  opacity: 0.5;
-}
-
-.field-textarea {
-  resize: vertical;
-  min-height: 72px;
 }
 
 .inline-error {
@@ -254,28 +59,20 @@
   border-radius: 6px;
 }
 
-/* Task list */
 .list-header {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-.count-badge {
-  font-size: 11px;
-  font-weight: 700;
-  background: rgba(99, 102, 241, 0.15);
-  color: var(--accent);
-  border: 1px solid rgba(99, 102, 241, 0.25);
-  padding: 2px 8px;
-  border-radius: 99px;
-  min-width: 24px;
-  text-align: center;
+.state-msg {
+  font-size: 14px;
+  color: var(--text);
+  padding: 8px 0;
 }
 
-.empty-state {
+.state-msg.muted {
   color: var(--text-muted);
-  font-size: 14px;
   text-align: center;
   padding: 24px 0;
 }
@@ -301,33 +98,6 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-}
-
-.task-status {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  padding: 2px 8px;
-  border-radius: 99px;
-}
-
-.status-todo {
-  background: rgba(139, 143, 168, 0.12);
-  color: var(--text-muted);
-  border: 1px solid rgba(139, 143, 168, 0.2);
-}
-
-.status-in-progress {
-  background: rgba(99, 102, 241, 0.12);
-  color: var(--accent);
-  border: 1px solid rgba(99, 102, 241, 0.25);
-}
-
-.status-done {
-  background: rgba(34, 197, 94, 0.1);
-  color: var(--success);
-  border: 1px solid rgba(34, 197, 94, 0.2);
 }
 
 .task-date {
