@@ -185,3 +185,129 @@
   color: #eab308;
   border: 1px solid rgba(234, 179, 8, 0.2);
 }
+
+/* ── Skeleton ───────────────────────────────────────────── */
+.ui-skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.04) 25%,
+    rgba(255, 255, 255, 0.09) 50%,
+    rgba(255, 255, 255, 0.04) 75%
+  );
+  background-size: 200% 100%;
+  animation: ui-shimmer 1.5s infinite;
+  display: block;
+}
+
+@keyframes ui-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.ui-skeleton-task {
+  background: var(--bg, #0f1117);
+  border: 1px solid var(--border, #2a2d3a);
+  border-radius: 8px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ui-skeleton-task__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* ── Alert ──────────────────────────────────────────────── */
+.ui-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.ui-alert--error {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: var(--error, #ef4444);
+}
+
+.ui-alert--warning {
+  background: rgba(234, 179, 8, 0.08);
+  border: 1px solid rgba(234, 179, 8, 0.2);
+  color: #eab308;
+}
+
+.ui-alert--success {
+  background: rgba(34, 197, 94, 0.08);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  color: var(--success, #22c55e);
+}
+
+.ui-alert--info {
+  background: rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  color: var(--accent, #6366f1);
+}
+
+.ui-alert__icon {
+  font-size: 12px;
+  margin-top: 1px;
+  flex-shrink: 0;
+}
+
+.ui-alert__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ui-alert__title {
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.ui-alert__msg {
+  line-height: 1.5;
+  opacity: 0.9;
+}
+
+.ui-alert__retry {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  color: inherit;
+  text-decoration: underline;
+  opacity: 0.85;
+  margin-top: 4px;
+  width: fit-content;
+}
+
+.ui-alert__retry:hover {
+  opacity: 1;
+}
+
+.ui-alert__close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  font-size: 11px;
+  opacity: 0.6;
+  padding: 0;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.ui-alert__close:hover {
+  opacity: 1;
+}

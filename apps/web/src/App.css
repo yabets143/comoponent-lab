@@ -92,6 +92,19 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
+  transition: opacity 0.2s;
+}
+
+.task-item--pending {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.task-cycle-btn {
+  align-self: flex-start;
+  margin-top: 4px;
+  padding: 5px 12px !important;
+  font-size: 12px !important;
 }
 
 .task-meta {

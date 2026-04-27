@@ -33,3 +33,19 @@ export interface CreateTaskInput {
   title: string;
   description: string;
 }
+
+export interface UpdateTaskInput {
+  status: TaskStatus;
+}
+
+export interface ValidationError {
+  field: string;
+  message: string;
+}
+
+export interface ApiValidationError {
+  success: false;
+  error: string;
+  statusCode: 422;
+  details: ValidationError[];
+}
