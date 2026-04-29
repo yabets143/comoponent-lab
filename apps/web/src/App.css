@@ -15,6 +15,10 @@
   background: var(--surface);
 }
 
+.header-right {
+  margin-left: auto;
+}
+
 .logo {
   font-size: 18px;
   font-weight: 700;

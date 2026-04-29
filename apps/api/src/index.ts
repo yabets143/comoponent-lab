@@ -9,6 +9,7 @@ import type {
   ValidationError,
   Task,
   TaskStatus,
+  TaskEvent,
   CreateTaskInput,
   UpdateTaskInput,
 } from "@component-lab/types";
@@ -22,7 +23,17 @@ app.use(express.json());
 // ── In-memory store ───────────────────────────────────────
 const tasks: Task[] = [];
 
-// ── Validation helpers ────────────────────────────────────
+// ── SSE client registry ───────────────────────────────────
+const sseClients = new Set<Response>();
+
+function broadcast(event: TaskEvent) {
+  const data = `data: ${JSON.stringify(event)}\n\n`;
+  for (const client of sseClients) {
+    client.write(data);
+  }
+}
+
+// ── Validation ────────────────────────────────────────────
 const VALID_STATUSES: TaskStatus[] = ["todo", "in-progress", "done"];
 
 function validateCreateTask(body: unknown): ValidationError[] {
@@ -76,7 +87,41 @@ app.get("/tasks", (_req: Request, res: Response) => {
   res.json(payload);
 });
 
-// POST /tasks — create with validation
+// GET /events — Server-Sent Events stream
+app.get("/events", (req: Request, res: Response) => {
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+  res.flushHeaders();
+
+  sseClients.add(res);
+
+  // Tell this client how many people are currently connected
+  const connectedEvent: TaskEvent = {
+    type: "connected",
+    payload: { clientCount: sseClients.size },
+    timestamp: new Date().toISOString(),
+  };
+  res.write(`data: ${JSON.stringify(connectedEvent)}\n\n`);
+
+  // Broadcast updated count to everyone else
+  broadcast({
+    type: "connected",
+    payload: { clientCount: sseClients.size },
+    timestamp: new Date().toISOString(),
+  });
+
+  req.on("close", () => {
+    sseClients.delete(res);
+    broadcast({
+      type: "connected",
+      payload: { clientCount: sseClients.size },
+      timestamp: new Date().toISOString(),
+    });
+  });
+});
+
+// POST /tasks
 app.post("/tasks", (req: Request, res: Response) => {
   const errors = validateCreateTask(req.body);
   if (errors.length > 0) {
@@ -95,15 +140,13 @@ app.post("/tasks", (req: Request, res: Response) => {
 
   tasks.push(task);
 
-  const payload: ApiResponse<Task> = {
-    success: true,
-    data: task,
-    message: "Task created",
-  };
+  broadcast({ type: "task:created", payload: task, timestamp: new Date().toISOString() });
+
+  const payload: ApiResponse<Task> = { success: true, data: task, message: "Task created" };
   res.status(201).json(payload);
 });
 
-// PATCH /tasks/:id — update status with validation
+// PATCH /tasks/:id
 app.patch("/tasks/:id", (req: Request, res: Response) => {
   const task = tasks.find((t) => t.id === req.params.id);
   if (!task) {
@@ -115,21 +158,16 @@ app.patch("/tasks/:id", (req: Request, res: Response) => {
 
   if (!body.status || !VALID_STATUSES.includes(body.status)) {
     sendValidationError(res, [
-      {
-        field: "status",
-        message: `status must be one of: ${VALID_STATUSES.join(", ")}`,
-      },
+      { field: "status", message: `status must be one of: ${VALID_STATUSES.join(", ")}` },
     ]);
     return;
   }
 
   task.status = body.status;
 
-  const payload: ApiResponse<Task> = {
-    success: true,
-    data: { ...task },
-    message: "Task updated",
-  };
+  broadcast({ type: "task:updated", payload: { ...task }, timestamp: new Date().toISOString() });
+
+  const payload: ApiResponse<Task> = { success: true, data: { ...task }, message: "Task updated" };
   res.json(payload);
 });
 

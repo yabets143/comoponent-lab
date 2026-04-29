@@ -12,3 +12,5 @@ export { Skeleton, SkeletonTaskItem } from "./Skeleton";
 
 export { Alert } from "./Alert";
 export type { AlertVariant } from "./Alert";
+
+export { ConnectionStatus } from "./ConnectionStatus";

@@ -9,10 +9,12 @@ import {
   Badge,
   Alert,
   SkeletonTaskItem,
+  ConnectionStatus,
 } from "@component-lab/ui";
 import "@component-lab/ui/src/ui.css";
 import type { CreateTaskInput, TaskStatus } from "@component-lab/types";
 import { useTasks, useCreateTask, useUpdateTaskStatus } from "./hooks/useTasks";
+import { useTaskEvents } from "./hooks/useTaskEvents";
 import "./App.css";
 
 const STATUS_CYCLE: Record<TaskStatus, TaskStatus> = {
@@ -31,6 +33,7 @@ export default function App() {
   const { data: tasks = [], isLoading, isError, error, refetch } = useTasks();
   const createTask = useCreateTask();
   const updateStatus = useUpdateTaskStatus();
+  const stream = useTaskEvents();
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -56,7 +59,13 @@ export default function App() {
     <div className="app">
       <header className="app-header">
         <div className="logo">⬡ Component Lab</div>
-        <span className="badge-header">Monorepo · Day 4</span>
+        <span className="badge-header">Monorepo · Day 5</span>
+        <div className="header-right">
+          <ConnectionStatus
+            connected={stream.connected}
+            clientCount={stream.clientCount}
+          />
+        </div>
       </header>
 
       <main className="app-main">
@@ -64,9 +73,9 @@ export default function App() {
         <Card>
           <CardTitle>Create a Task</CardTitle>
           <CardDescription>
-            Validation runs on the backend. The task appears in the list
-            immediately via <code>optimistic UI</code> — and rolls back if the
-            server rejects it.
+            Tasks appear instantly via <code>optimistic UI</code> and are
+            broadcast in real-time to all connected tabs via{" "}
+            <code>Server-Sent Events</code>.
           </CardDescription>
 
           <form className="task-form" onSubmit={handleSubmit}>
@@ -116,7 +125,6 @@ export default function App() {
             <Badge variant="accent">{tasks.length}</Badge>
           </div>
 
-          {/* Loading skeleton */}
           {isLoading && (
             <ul className="task-list">
               {[1, 2, 3].map((n) => (
@@ -127,7 +135,6 @@ export default function App() {
             </ul>
           )}
 
-          {/* Fetch error with retry */}
           {isError && (
             <Alert variant="error" onRetry={() => refetch()}>
               {(error as Error).message}

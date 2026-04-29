@@ -193,3 +193,56 @@ Handling failure states properly is just as important as handling success. A sys
 ### Next Step
 
 Implement real-time updates to move beyond request-response interaction and improve system responsiveness.
+
+---
+
+## Day 5 — Monday, May 4 (Real-Time Updates)
+
+### What I Built
+
+Today, I moved beyond the request-response model and added real-time communication between the server and all connected clients.
+
+I implemented Server-Sent Events (SSE) on the backend:
+
+* `GET /events` — a persistent HTTP stream that keeps each client connection open
+* The server maintains a registry of all active SSE clients
+* Every `POST /tasks` and `PATCH /tasks/:id` broadcasts a typed event to all connected clients instantly
+
+On the frontend:
+
+* `useTaskEvents` hook — subscribes to the SSE stream using the browser's native `EventSource` API
+* Incoming `task:created` events patch the React Query cache without triggering a full refetch
+* Incoming `task:updated` events update the matching task in place
+* A `ConnectionStatus` component in `packages/ui` shows a live pulsing dot and the current connected client count
+
+### What I Tried
+
+I initially considered WebSockets for bidirectional communication, but the updates only needed to flow from server to client.
+
+I also tried triggering a full `invalidateQueries` on every SSE event, but that caused unnecessary refetch round-trips.
+
+### What Didn't Work
+
+Full cache invalidation on every event added latency and caused visible flicker in the list, since the entire list was replaced on each update.
+
+### Problems I Faced
+
+* Choosing between WebSockets and SSE for this use case
+* Avoiding duplicate entries when the originating client already applied an optimistic update
+* Managing the SSE connection lifecycle correctly in React
+
+### How I Solved Them
+
+SSE was the right fit — it uses a plain HTTP connection, requires no additional packages on either side, and works natively in the browser via `EventSource`.
+
+For duplicates, the `task:created` handler checks whether the task ID already exists in the cache before inserting, so the optimistic entry is simply confirmed rather than doubled.
+
+The `useEffect` cleanup function calls `source.close()` to prevent connection leaks when the component unmounts.
+
+### Key Insight
+
+Not every real-time feature needs WebSockets. Server-Sent Events are simpler, require no extra dependencies, and are the right tool when communication is one-directional — server pushing state to clients.
+
+### Next Step
+
+Refactor the task feature into a standalone route module and explore persisting tasks to a real database.

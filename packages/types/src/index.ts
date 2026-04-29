@@ -49,3 +49,12 @@ export interface ApiValidationError {
   statusCode: 422;
   details: ValidationError[];
 }
+
+// Real-time events — streamed from backend to all connected clients
+export type TaskEventType = "task:created" | "task:updated" | "connected";
+
+export interface TaskEvent {
+  type: TaskEventType;
+  payload: Task | { clientCount: number };
+  timestamp: string;
+}
